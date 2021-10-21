@@ -4,14 +4,14 @@ import java.util.Arrays;
 
 class BTree {
     Node root;
-    int MinDeg;
+    int t;
 
     public BTree() {
     }
 
-    public BTree(int deg) {
+    public BTree(int t) {
         this.root = null;
-        this.MinDeg = deg;
+        this.t = t;
     }
 
     public void traverse() {
@@ -25,6 +25,7 @@ class BTree {
                 System.out.printf("%d : %s |", elem, val);
             }
         }
+        System.out.println();
     }
 
     public String search(int key) {
@@ -49,7 +50,7 @@ class BTree {
     public void restoreTree() {
         ArrayList<String> intArr = getFileContent("dataInt.bin");
         ArrayList<String> strArr = getFileContent("dataStr.bin");
-        this.MinDeg = Integer.parseInt(intArr.get(0));
+        this.t = Integer.parseInt(intArr.get(0));
         for (int i = 1; i < strArr.size(); i++) {
             insert(Integer.parseInt(intArr.get(i)), strArr.get(i));
         }
@@ -61,7 +62,7 @@ class BTree {
         root.traverse(intArr, strArr);
         StringBuilder builderInt = new StringBuilder();
         StringBuilder builderStr = new StringBuilder();
-        builderInt.append(this.MinDeg).append("\n");
+        builderInt.append(this.t).append("\n");
         for (int i = 0; i < intArr.size(); i++) {
             int intEl = intArr.get(i);
             String strEl = strArr.get(i);
@@ -79,13 +80,13 @@ class BTree {
 
     public void insert(int key, String value) {
         if (root == null) {
-            root = new Node(MinDeg, true);
+            root = new Node(t, true);
             root.keys[0] = key;
             root.values[0] = value;
             root.num = 1;
         } else {
-            if (root.num == 2 * MinDeg - 1) {
-                Node s = new Node(MinDeg, false);
+            if (root.num == 2 * t - 1) {
+                Node s = new Node(t, false);
                 s.child[0] = root;
                 s.splitChild(0, root);
                 int i = 0;

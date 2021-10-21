@@ -8,7 +8,7 @@ public class Main {
         for(int i = 0; i < 1000; i++){
             tree.insert(rand.nextInt(10000));
         }*/
-/*        tree.insert(1, "Bukreev");
+        tree.insert(1, "Bukreev");
         tree.insert(2, "Boiko");
         tree.insert(3, "Bublik");
         tree.insert(4, "Horduz");
@@ -35,15 +35,33 @@ public class Main {
         tree.insert(25, "Shevchuk");
         tree.insert(26, "Yaremchuk");
         tree.traverse();
-        tree.remove(2);
+
+        //System.out.println(tree.search(24));
+        tree.search(24);
+        tree.search(18);
+        tree.search(13);
+        tree.search(12);
+        tree.search(8);
+        tree.search(6);
+        tree.search(15);
+        tree.search(11);
+        tree.search(1);
+        tree.search(3);
+        tree.search(25);
+        tree.search(21);
+        tree.search(2);
+        tree.search(17);
+        tree.search(19);
+
+       /* tree.remove(2);
         tree.remove(6);
         System.out.println();
-        tree.traverse();
+        tree.traverse();*/
 
 
-        tree.saveToFile();*/
-        tree.restoreTree();
+        tree.saveToFile();
+        /*tree.restoreTree();
         tree.traverse();
-        System.out.println(tree.search(3));
+        System.out.println(tree.search(3));*/
     }
 }
