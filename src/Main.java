@@ -2,12 +2,14 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        BTree tree = new BTree(5);
+        BTree tree = new BTree(50);
         //tree.restoreTree();
         /*Random rand = new Random();
         for(int i = 0; i < 1000; i++){
             tree.insert(rand.nextInt(10000));
         }*/
+
+
         tree.insert(1, "Bukreev");
         tree.insert(2, "Boiko");
         tree.insert(3, "Bublik");
@@ -36,8 +38,7 @@ public class Main {
         tree.insert(26, "Yaremchuk");
         tree.traverse();
 
-        //System.out.println(tree.search(24));
-        tree.search(24);
+        System.out.println(tree.search(24));
         tree.search(18);
         tree.search(13);
         tree.search(12);
@@ -52,6 +53,7 @@ public class Main {
         tree.search(2);
         tree.search(17);
         tree.search(19);
+
 
        /* tree.remove(2);
         tree.remove(6);

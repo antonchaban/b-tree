@@ -31,11 +31,58 @@ class BTree {
     public String search(int key) {
         String res;
         int[] comparisons = new int[1];
-        Node node = root == null ? null : root.search(key, comparisons);
-        System.out.println("Number of comparisons to find " + key + ": " + comparisons[0]);
-        res = node.values[node.findKey(key)];
+        Node node;
+        if (root == null) node = null;
+        else node = root.search(key, comparisons);
+        if (node == null){
+            res = "Error";
+        }
+        else {
+            System.out.println("Number of comparisons to find " + key + ": " + comparisons[0]);
+            res = node.values[node.findKey(key)];
+        }
+
         return res;
     }
+
+    public void insert(int key, String value) {
+        if (root == null) { // створюємо вузол якщо немає
+            root = new Node(t, true);
+            root.keys[0] = key;
+            root.values[0] = value;
+            root.num = 1;
+        } else {
+            if (root.num == 2 * t - 1) { // якщо рут заповнився - він стає дочірнім вузлом нового рута
+                Node s = new Node(t, false);
+                s.child[0] = root;
+                s.splitChild(0, root); // новий рут має 2 дочірніх
+                int i = 0;
+                if (s.keys[0] < key)
+                    i++;
+                s.child[i].insertNotFull(key, value);
+
+                root = s;
+            } else
+                root.insertNotFull(key, value);
+        }
+    }
+
+    public void remove(int key) {
+        if (root == null) {
+            System.out.println("The tree is empty");
+            return;
+        }
+        root.remove(key);
+        if (root.num == 0) {
+            if (root.isLeaf)
+                root = null;
+            else
+                root = root.child[0];
+        }
+    }
+
+
+    //////////
 
     private ArrayList<String> getFileContent(String pathname) {
         ArrayList<String> strings = new ArrayList<>();
@@ -76,41 +123,5 @@ class BTree {
             dos.writeUTF(builderStr.toString());
         }
 
-    }
-
-    public void insert(int key, String value) {
-        if (root == null) {
-            root = new Node(t, true);
-            root.keys[0] = key;
-            root.values[0] = value;
-            root.num = 1;
-        } else {
-            if (root.num == 2 * t - 1) {
-                Node s = new Node(t, false);
-                s.child[0] = root;
-                s.splitChild(0, root);
-                int i = 0;
-                if (s.keys[0] < key)
-                    i++;
-                s.child[i].insertNotFull(key, value);
-
-                root = s;
-            } else
-                root.insertNotFull(key, value);
-        }
-    }
-
-    public void remove(int key) {
-        if (root == null) {
-            System.out.println("The tree is empty");
-            return;
-        }
-        root.remove(key);
-        if (root.num == 0) {
-            if (root.isLeaf)
-                root = null;
-            else
-                root = root.child[0];
-        }
     }
 }

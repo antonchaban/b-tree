@@ -8,8 +8,8 @@ class Node {
     int num;
     boolean isLeaf;
 
-    public Node(int deg, boolean isLeaf) {
-        this.t = deg;
+    public Node(int t, boolean isLeaf) {
+        this.t = t;
         this.isLeaf = isLeaf;
         this.keys = new int[2 * this.t - 1];
         this.values = new String[2 * this.t - 1];
@@ -24,6 +24,100 @@ class Node {
         return idx;
     }
 
+
+    public void insertNotFull(int key, String value) {
+        int i = num - 1;
+
+        if (isLeaf) {
+            while (i >= 0 && keys[i] > key) { // пошук позиції якщо вузол є листком дерева
+                keys[i + 1] = keys[i];
+                values[i + 1] = values[i];
+                i--;
+            }
+            keys[i + 1] = key;
+            values[i + 1] = value;
+            num++;
+        } else {
+            while (i >= 0 && keys[i] > key) // пошук позиції якщо вузол не є листком дерева
+                i--;
+            if (child[i + 1].num == 2 * t - 1) { // якщо дочірній заповнений то розділяємо
+                splitChild(i + 1, child[i + 1]);
+                if (keys[i + 1] < key)
+                    i++;
+            }
+            child[i + 1].insertNotFull(key, value);
+        }
+    }
+
+    public void splitChild(int i, Node y) {
+
+        Node z = new Node(y.t, y.isLeaf);
+        z.num = t - 1;
+
+        for (int j = 0; j < t - 1; j++) {
+            z.keys[j] = y.keys[j + t];
+            z.values[j] = y.values[j + t];
+        }
+        if (!y.isLeaf) {
+            for (int j = 0; j < t; j++)
+                z.child[j] = y.child[j + t];
+        }
+        y.num = t - 1;
+
+        for (int j = num; j >= i + 1; j--)
+            child[j + 1] = child[j];
+        child[i + 1] = z;
+
+        for (int j = num - 1; j >= i; j--) {
+            keys[j + 1] = keys[j];
+            values[j + 1] = values[j];
+        }
+
+        keys[i] = y.keys[t - 1];
+        values[i] = y.values[t - 1];
+
+        num++;
+    }
+
+    public void traverse(ArrayList<Integer> integers, ArrayList<String> valuesArray) {
+        int i;
+        for (i = 0; i < num; i++) {
+            if (!isLeaf)
+                child[i].traverse(integers, valuesArray);
+            integers.add(keys[i]);
+            valuesArray.add(values[i]);
+        }
+
+        if (!isLeaf) {
+            child[i].traverse(integers, valuesArray);
+        }
+    }
+
+    public Node search(int key, int[] comparisons) {
+        int high = num;
+        int low = 0;
+        int medium = (high + low) / 2;
+        while (low <= high) {
+            comparisons[0]++;
+            medium = (high + low) / 2;
+            if(keys[medium] == key) {
+                comparisons[0] += 1;
+                return this;
+            } else if (keys[medium] < key) {
+                comparisons[0] += 2;
+                low = medium + 1;
+            } else {
+                high = medium - 1;
+            }
+        }
+
+        if (isLeaf)
+            return null;
+        return child[medium].search(key, comparisons);
+
+
+    }
+
     public void remove(int key) {
         int idx = findKey(key);
         if (idx < num && keys[idx] == key) {
@@ -36,6 +130,7 @@ class Node {
                 System.out.printf("The key %d not in tree\n", key);
                 return;
             }
+
             boolean flag = idx == num;
             if (child[idx].num < t)
                 fill(idx);
@@ -63,8 +158,7 @@ class Node {
             values[idx] = predStr;
             keys[idx] = predInt;
             child[idx].remove(predInt);
-        }
-        else if (child[idx + 1].num >= t) {
+        } else if (child[idx + 1].num >= t) {
             int succ = getSuc(idx);
             keys[idx] = succ;
             child[idx + 1].remove(succ);
@@ -74,7 +168,7 @@ class Node {
         }
     }
 
-    public int getPredInt(int idx) {
+    public int getPredInt(int idx) { // шукаємо крайній правий вузол із лівого піддерева
         Node cur = child[idx];
         while (!cur.isLeaf)
             cur = cur.child[cur.num];
@@ -122,13 +216,14 @@ class Node {
 
 
         if (!child.isLeaf) {
-            for (int i = child.num; i >= 0; --i){
+            for (int i = child.num; i >= 0; --i) {
                 child.child[i + 1] = child.child[i];
             }
 
         }
 
         child.keys[0] = keys[idx - 1];
+        child.values[0] = values[idx - 1];
         if (!child.isLeaf)
             child.child[0] = sibling.child[sibling.num];
 
@@ -151,7 +246,7 @@ class Node {
         keys[idx] = sibling.keys[0];
         values[idx] = sibling.values[0];
 
-        for (int i = 1; i < sibling.num; ++i){
+        for (int i = 1; i < sibling.num; ++i) {
             sibling.keys[i - 1] = sibling.keys[i];
             sibling.values[i - 1] = sibling.values[i];
         }
@@ -172,7 +267,7 @@ class Node {
         child.keys[t - 1] = keys[idx];
         child.values[t - 1] = values[idx];
 
-        for (int i = 0; i < sibling.num; ++i){
+        for (int i = 0; i < sibling.num; ++i) {
             child.keys[i + t] = sibling.keys[i];
             child.values[i + t] = sibling.values[i];
         }
@@ -183,7 +278,7 @@ class Node {
                 child.child[i + t] = sibling.child[i];
         }
 
-        for (int i = idx + 1; i < num; ++i){
+        for (int i = idx + 1; i < num; ++i) {
             keys[i - 1] = keys[i];
             values[i - 1] = values[i];
         }
@@ -194,86 +289,58 @@ class Node {
         child.num += sibling.num + 1;
         num--;
     }
-
-    public void insertNotFull(int key, String value) {
-        int i = num - 1;
-
-        if (isLeaf) {
-            while (i >= 0 && keys[i] > key) {
-                keys[i + 1] = keys[i];
-                i--;
-            }
-            keys[i + 1] = key;
-            values[i + 1] = value;
-            num++;
-        } else {
-            while (i >= 0 && keys[i] > key)
-                i--;
-            if (child[i + 1].num == 2 * t - 1) {
-                splitChild(i + 1, child[i + 1]);
-                if (keys[i + 1] < key)
-                    i++;
-            }
-            child[i + 1].insertNotFull(key, value);
-        }
-    }
-
-    public void splitChild(int i, Node y) {
-        Node z = new Node(y.t, y.isLeaf);
-        z.num = t - 1;
-
-        for (int j = 0; j < t - 1; j++) {
-            z.keys[j] = y.keys[j + t];
-            z.values[j] = y.values[j + t];
-        }
-        if (!y.isLeaf) {
-            for (int j = 0; j < t; j++)
-                z.child[j] = y.child[j + t];
-        }
-        y.num = t - 1;
-
-        for (int j = num; j >= i + 1; j--)
-            child[j + 1] = child[j];
-        child[i + 1] = z;
-
-        for (int j = num - 1; j >= i; j--) {
-            keys[j + 1] = keys[j];
-            values[j + 1] = values[j];
-        }
-
-        keys[i] = y.keys[t - 1];
-        values[i] = y.values[t - 1];
-
-        num++;
-    }
-
-    public void traverse(ArrayList<Integer> integers, ArrayList<String> valuesArray) {
-        int i;
-        for (i = 0; i < num; i++) {
-            if (!isLeaf)
-                child[i].traverse(integers, valuesArray);
-            integers.add(keys[i]);
-            valuesArray.add(values[i]);
-        }
-
-        if (!isLeaf) {
-            child[i].traverse(integers, valuesArray);
-        }
-    }
-
-    public Node search(int key, int[] comparisons) {
-        int i = 0;
-        while (i < num && key > keys[i]) {
-            i++;
-            comparisons[0]++;
-        }
-        comparisons[0]++;
-
-        if (keys[i] == key) {
-            return this;
-        }
-        if (isLeaf)
-            return null;
-        return child[i].search(key, comparisons);
-    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            /*
+            if (medium == 0 && keys[medium] > key) {
+                break;
+            } else if (medium == num - 1 && keys[medium] < key) {
+                medium++;
+                break;
+            } else if (keys[medium] < key && keys[medium + 1] > key) {
+                medium++;
+                break;
+            } else if (keys[medium] > key && keys[medium - 1] < key) {
+                break;
+            } else if (keys[medium] > key) {
+                high = medium - 1;
+            } else if (keys[medium] < key) {
+                low = medium + 1;
+            } else {
+                return this;
+            }*/
